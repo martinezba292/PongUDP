@@ -1,9 +1,8 @@
 // PongClient.cpp
 
-#include "SDL.h"
 #include <stdio.h>
-#include "player.h"
-#include "ws2tcpip.h"
+#include "window.h"
+#include "common_def.h"
 
 int32_t EstablishConection(SOCKET* sock, sockaddr_in* ip) {
   WSADATA wsa;
@@ -29,14 +28,56 @@ int32_t EstablishConection(SOCKET* sock, sockaddr_in* ip) {
   return player_tag;
 }
 
+bool CloseRequest(SDL_Event* event) {
+  return (event->type == SDL_QUIT) || 
+         (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE);
+}
+
+void SendoToServer(const SOCKET& sock, 
+                   const ClientPackage& packet,
+                   const sockaddr_in& ip) {
+
+  int ip_size = sizeof(ip);
+  sendto(sock, (char*)&packet, sizeof(ClientPackage), 0, (SOCKADDR*)&ip, ip_size);
+}
+
+ServerPackage ReceiveFromServer(const SOCKET& sock, const sockaddr_in& ip) {
+  int ip_size = sizeof(ip);
+  ServerPackage packet;
+  recvfrom(sock, (char*)&packet, sizeof(ServerPackage), 0, (SOCKADDR*)&ip, &ip_size);
+
+  return packet;
+}
+
 int main(int argc, char** argv)
 {
   SOCKET sock;
   struct sockaddr_in ip;
-  Player player;
+  ClientPackage player;
   int ip_size = sizeof(ip);
-  player.init(EstablishConection(&sock, &ip));
+  player.playerData_.init(EstablishConection(&sock, &ip));
   bool close_request = false;
+  Window::getInternalData().init(kMax_width, kMax_height, 0, 0, 0);
+  ServerPackage game_info;
+  game_info = ReceiveFromServer(sock, ip);
+  int32_t client_tag = player.playerData_.getTag();
+  player.playerData_ = game_info.playerData_[client_tag];
+  while (!close_request) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+      close_request = CloseRequest(&event);
 
+      player.playerData_.playerController(event, SDLK_w, SDLK_s);
+    }
+
+    SendoToServer(sock, player, ip);
+    game_info = ReceiveFromServer(sock, ip);
+    player.playerData_.setPosition(game_info.playerData_[client_tag]);
+
+    Window::getInternalData().clearWindow();
+    game_info.playerData_[0].draw(Window::getInternalData().render_);
+    game_info.playerData_[1].draw(Window::getInternalData().render_);
+    Window::getInternalData().renderDraw();
+  }
   return 0;
 }

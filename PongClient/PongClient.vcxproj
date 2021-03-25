@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>.\..\deps\SDL2\include\;.\..\shared_src\;$(IncludePath)</IncludePath>
+    <IncludePath>.\..\deps\SDL2\include\;.\..\include\;$(IncludePath)</IncludePath>
     <LibraryPath>.\..\deps\SDL2\lib\x86\;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
@@ -147,11 +147,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\shared_src\player.cpp" />
+    <ClCompile Include="..\src\player.cpp" />
+    <ClCompile Include="..\src\window.cpp" />
     <ClCompile Include="client.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\shared_src\player.h" />
+    <ClInclude Include="..\include\common_def.h" />
+    <ClInclude Include="..\include\player.h" />
+    <ClInclude Include="..\include\window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

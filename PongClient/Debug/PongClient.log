@@ -1,0 +1,6 @@
+﻿  player.cpp
+C:\Users\manue\Documents\NetworkPong\src\player.cpp(29,12): warning C4244: '=': conversion from 'float' to 'int32_t', possible loss of data
+  window.cpp
+  client.cpp
+  Generating Code...
+  PongClient.vcxproj -> C:\Users\manue\Documents\NetworkPong\Debug\PongClient.exe
