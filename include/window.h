@@ -16,6 +16,7 @@ public:
   void setWindowColor(Uint8 r, Uint8 g, Uint8 b);
   void clearWindow();
   void renderDraw();
+  void destroy();
 
 private:
   SDL_Color window_color_;

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "window.h"
 #include "common_def.h"
+#include <iostream>
 
 int32_t EstablishConection(SOCKET* sock, sockaddr_in* ip) {
   WSADATA wsa;
@@ -43,7 +44,7 @@ void SendoToServer(const SOCKET& sock,
 
 ServerPackage ReceiveFromServer(const SOCKET& sock, const sockaddr_in& ip) {
   int ip_size = sizeof(ip);
-  ServerPackage packet;
+  ServerPackage packet{};
   recvfrom(sock, (char*)&packet, sizeof(ServerPackage), 0, (SOCKADDR*)&ip, &ip_size);
 
   return packet;
@@ -56,22 +57,23 @@ int main(int argc, char** argv)
   ClientPackage player;
   int ip_size = sizeof(ip);
   player.playerData_.init(EstablishConection(&sock, &ip));
-  bool close_request = false;
-  Window::getInternalData().init(kMax_width, kMax_height, 0, 0, 0);
   ServerPackage game_info;
-  game_info = ReceiveFromServer(sock, ip);
+  //game_info = ReceiveFromServer(sock, ip);
+  recvfrom(sock, (char*)&game_info, sizeof(ServerPackage), 0, (SOCKADDR*)&ip, &ip_size);
+  Window::getInternalData().init(kMax_width, kMax_height, 0, 0, 0);
   int32_t client_tag = player.playerData_.getTag();
   player.playerData_ = game_info.playerData_[client_tag];
-  while (!close_request) {
+  player.close_request = false;
+  while (!game_info.close_request) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-      close_request = CloseRequest(&event);
-
+      player.close_request = CloseRequest(&event);
       player.playerData_.playerController(event, SDLK_w, SDLK_s);
     }
 
     SendoToServer(sock, player, ip);
-    game_info = ReceiveFromServer(sock, ip);
+    //game_info = ReceiveFromServer(sock, ip);
+    recvfrom(sock, (char*)&game_info, sizeof(ServerPackage), 0, (SOCKADDR*)&ip, &ip_size);
     player.playerData_.setPosition(game_info.playerData_[client_tag]);
 
     Window::getInternalData().clearWindow();
@@ -79,5 +81,13 @@ int main(int argc, char** argv)
     game_info.playerData_[1].draw(Window::getInternalData().render_);
     Window::getInternalData().renderDraw();
   }
+  int finish_confirm = 1;
+  sendto(sock, (char*)&finish_confirm, sizeof(int), 0, (SOCKADDR*)&ip, ip_size);
+  printf(game_info.msg);
+  shutdown(sock, SD_BOTH);
+  closesocket(sock);
+  WSACleanup();
+  Window::getInternalData().destroy();
+
   return 0;
 }

@@ -78,3 +78,11 @@ void Window::clearWindow() {
 void Window::renderDraw() {
   SDL_RenderPresent(render_);
 }
+
+void Window::destroy()
+{
+  SDL_DestroyRenderer(render_);
+  SDL_DestroyWindow(window_);
+  SDL_Quit();
+  delete(internal_data_);
+}

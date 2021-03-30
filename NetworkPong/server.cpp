@@ -10,8 +10,10 @@ ClientPackage RecieveFromClient(const SOCKET& sock) {
 }
 
 void Update(ServerPackage* packet) {
-  packet->playerData_[0].movePosition();
-  packet->playerData_[1].movePosition();
+  for (size_t i = 0; i < packet->playerData_.size(); i++) {
+    packet->playerData_[i].movePosition();
+    packet->playerData_[i].setLimits(kMax_height);
+  }
 }
 
 int main(int argc, char** argv)
@@ -29,6 +31,7 @@ int main(int argc, char** argv)
   int ip_size = sizeof(ipc[0]);
   int players_number = 0;
   ServerPackage packet;
+  packet.close_request = false;
 
   printf("Server online, waiting for players\n");
   while (players_number < 2) {
@@ -54,17 +57,36 @@ int main(int argc, char** argv)
     sendto(sock, (char*)&packet, sizeof(ServerPackage), 0, (SOCKADDR*)&ipc[i], sizeof(ipc[i]));
   }
 
-  while (1) {
+  bool client_close_request[2] = { false };
+  while (!client_close_request[0] && !client_close_request[1]) {
     ClientPackage client1 = RecieveFromClient(sock);
     ClientPackage client2 = RecieveFromClient(sock);
     packet.playerData_[client1.playerData_.getTag()] = client1.playerData_;
     packet.playerData_[client2.playerData_.getTag()] = client2.playerData_;
+    client_close_request[0] = client1.close_request;
+    client_close_request[1] = client2.close_request;
     Update(&packet);
 
     for (int i = 0; i < players_number; ++i) {
       sendto(sock, (char*)&packet, sizeof(ServerPackage), 0, (SOCKADDR*)&ipc[i], sizeof(ipc[i]));
     }
   }
+
+  bool p = client_close_request[1];
+  sprintf_s(packet.msg, "Conexion ended by player %d. Game finished\n", (int)(p + 1));
+  packet.close_request = true;
+  for (int i = 0; i < players_number; ++i) {
+    sendto(sock, (char*)&packet, sizeof(ServerPackage), 0, (SOCKADDR*)&ipc[i], sizeof(ipc[i]));
+  }
+
+  int end_app = 0;
+  recvfrom(sock, (char*)&end_app, sizeof(int), 0, NULL, NULL);
+  recvfrom(sock, (char*)&end_app, sizeof(int), 0, NULL, NULL);
+  shutdown(sock, SD_BOTH);
+  closesocket(sock);
+  WSACleanup();
+
+  printf("Conexion finished");
 
   return 0;
 }
