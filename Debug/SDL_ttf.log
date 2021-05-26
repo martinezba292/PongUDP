@@ -1,0 +1,10 @@
+﻿  Copying libfreetype-6.dll
+          1 archivo(s) copiado(s).
+  Copying LICENSE.freetype.txt
+          1 archivo(s) copiado(s).
+  Copying LICENSE.zlib.txt
+          1 archivo(s) copiado(s).
+  Copying zlib1.dll
+          1 archivo(s) copiado(s).
+  SDL_ttf.c
+C:\Users\manue\Downloads\SDL2_ttf-2.0.15\SDL_ttf.c(34,10): fatal error C1083: Cannot open include file: 'SDL.h': No such file or directory

@@ -1,4 +1,5 @@
 #include "player.h"
+#include "font.h"
 
 Player::Player()
 {
@@ -7,6 +8,7 @@ Player::Player()
   speed_ = 0;
   score_ = 0;
   playerRect_ = { 0,220,20,80 };
+  score_outdated_ = false;
 }
 
 Player::Player(const Player& other)
@@ -16,6 +18,7 @@ Player::Player(const Player& other)
   speed_ = other.speed_;
   playerRect_ = other.playerRect_;
   score_ = other.score_;
+  score_outdated_ = other.score_outdated_;
 }
 
 void Player::init(uint32_t player_tag)
@@ -46,6 +49,30 @@ void Player::playerController(SDL_Event event, SDL_Keycode up, SDL_Keycode down)
   else if (event.type == SDL_KEYUP) direction_ = 0;
 }
 
+int32_t Player::getScore()
+{
+  return score_;
+}
+
+void Player::updateScore()
+{
+  ++score_;
+  score_outdated_ = true;
+}
+
+void Player::synchronizeUI(Font& font)
+{
+  if (score_outdated_) {
+    font.updateScoreUI(score_);
+    score_outdated_ = false;
+  }
+}
+
+SDL_Rect Player::getRect()
+{
+    return playerRect_;
+}
+
 void Player::setLimits(int height) {
   if (playerRect_.y <= -playerRect_.h)
     playerRect_.y += height + playerRect_.h;
@@ -66,11 +93,6 @@ void Player::setPosition(Player other)
 
 void Player::movePosition() {
   playerRect_.y += direction_ * speed_;
-}
-
-void Player::draw(SDL_Renderer* rend) {
-  SDL_SetRenderDrawColor(rend, 255, 255, 255, 255);
-  SDL_RenderFillRect(rend, &playerRect_);
 }
 
 int32_t Player::getHeight()

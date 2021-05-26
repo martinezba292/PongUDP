@@ -15,7 +15,6 @@ Window::~Window() {
   SDL_DestroyRenderer(render_);
   SDL_DestroyWindow(window_);
   SDL_Quit();
-  delete(internal_data_);
 }
 
 void Window::init(int window_width, int window_height, Uint8 r, Uint8 g, Uint8 b) {
@@ -81,8 +80,8 @@ void Window::renderDraw() {
 
 void Window::destroy()
 {
-  SDL_DestroyRenderer(render_);
-  SDL_DestroyWindow(window_);
-  SDL_Quit();
-  delete(internal_data_);
+  if (internal_data_) {
+    delete(internal_data_);
+    internal_data_ = nullptr;
+  }
 }

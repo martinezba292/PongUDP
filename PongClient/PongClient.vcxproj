@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>.\..\deps\SDL2\include\;.\..\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>.\..\deps\SDL2\lib\x86\;$(LibraryPath)</LibraryPath>
+    <IncludePath>.\..\deps\SDL2\include\;.\..\include\;.\..\deps\SDL_ttf\;$(IncludePath)</IncludePath>
+    <LibraryPath>.\..\deps\SDL2\lib\x86\;.\..\deps\SDL_ttf\lib\;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -98,7 +98,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;Ws2_32.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -147,12 +147,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\ball.cpp" />
+    <ClCompile Include="..\src\font.cpp" />
     <ClCompile Include="..\src\player.cpp" />
     <ClCompile Include="..\src\window.cpp" />
     <ClCompile Include="client.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\ball.h" />
     <ClInclude Include="..\include\common_def.h" />
+    <ClInclude Include="..\include\font.h" />
     <ClInclude Include="..\include\player.h" />
     <ClInclude Include="..\include\window.h" />
   </ItemGroup>
